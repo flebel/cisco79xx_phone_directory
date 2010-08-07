@@ -1,0 +1,40 @@
+# Cisco 79xx phone directory
+A Flask app to use Google Contacts as the phone directory for the
+Cisco 79xx IP phones.
+Copyright (C) 2010 Francois Lebel <francoislebel@gmail.com>
+http://github.com/flebel/cisco79xx_phone_directory
+
+# Usage
+
+Backup your Google Contacts using the Google Contacts API, or use the
+downloadGoogleContacts.rb script, which can be found at the following URL:
+http://github.com/flebel/downloadGoogleContacts.rb
+
+The resulting XML file should be named 'contacts.xml' and located in the
+directory where the phone directory script resides.
+
+If you haven't already, install the Flask Python Microframework using
+"easy_install Flask", or visit http://flask.pocoo.org for more information.
+
+The Flask built-in webserver can be used for testing purposes from your
+browser. However, this webserver uses HTTP/1.0 by default, which is not
+supported by the Cisco 79xx IP phones. Therefore, it is recommended that
+you use a production-safe webserver, such as Apache + mod_wsgi.
+
+For more information on WSGI deployment, such as the required Apache
+configuration, read the official Flask documentation at:
+http://flask.pocoo.org/docs/deploying/mod_wsgi/
+
+If needed, review the variables at the top of the script and set them
+according to your needs.
+
+You will also need to edit the SIPDefault.cnf file located at the root
+of your TFTP server to add a line such as this one:
+directory_url: "http://192.168.0.200:5006/directory.xml"
+
+# Limitations
+
+The Cisco 79xx IP phones support up to 32 entries per directory page. This
+is the motivation behind having a contacts search page since most people
+have more than 32 contacts on their Google Contacts account.
+
