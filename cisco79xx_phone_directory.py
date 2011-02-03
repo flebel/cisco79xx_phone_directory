@@ -2,7 +2,7 @@
 
 #   Cisco 79xx phone directory: a Flask app to use Google Contacts
 #   as the phone directory for the Cisco 79xx IP phones.
-#   Copyright (C) 2010 Francois Lebel <francoislebel@gmail.com>
+#   Copyright (C) 2010-2011 Francois Lebel <francoislebel@gmail.com>
 #   http://github.com/flebel/cisco79xx_phone_directory
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -18,17 +18,30 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask, request
-app = Flask(__name__)
 import re
-digits_re = re.compile(r'[^\d]+')
+import unicodedata
+from flask import Flask, request
+from htmlentitydefs import codepoint2name, name2codepoint
 from xml.etree import ElementTree
 
+# CONFIGURATION REQUIRED:
 # Change these to fit your needs, the port has to match the one on
 # which the webserver listens to. It is required to hardcode the port
 # number in order to work around a bug with the Cisco 79xx browser.
 CONTACTS_FILE = "contacts.xml"
 PORT = 5006
+
+app = Flask(__name__)
+DIGITS_RE = re.compile(r'[^\d]+')
+
+
+def remove_accents(str):
+    """
+    Thanks to MiniQuark:
+    http://stackoverflow.com/questions/517923/what-is-the-best-way-to-remove-accents-in-a-python-unicode-string/517974#517974
+    """
+    nkfd_form = unicodedata.normalize('NFKD', unicode(str))
+    return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
 
 
 class DirectoryEntry:
@@ -38,10 +51,10 @@ class DirectoryEntry:
     """
     def __init__(self, number, name, label):
         # Discard non-digit characters
-        self.number = digits_re.sub('', number)
-        self.name = name
+        self.number = DIGITS_RE.sub('', number)
+        self.name = remove_accents(unicode(name))
         # The label may contain schema information, discard it
-        self.label = label.replace('http://schemas.google.com/g/2005#', '')
+        self.label = remove_accents(unicode(label.replace('http://schemas.google.com/g/2005#', '')))
 
     def __str__(self):
         if self.label:
