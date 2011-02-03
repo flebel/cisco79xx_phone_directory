@@ -21,7 +21,6 @@
 import re
 import unicodedata
 from flask import Flask, request
-from htmlentitydefs import codepoint2name, name2codepoint
 from xml.etree import ElementTree
 
 # CONFIGURATION REQUIRED:
